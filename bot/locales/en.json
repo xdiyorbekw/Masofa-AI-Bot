@@ -152,7 +152,7 @@
     "session_expired": "The admin session expired. Run /admin again.",
     "session_cancelled": "Admin session cancelled.",
     "logged_out": "You have logged out of the admin panel.",
-    "metrics": "<b>Metrics</b>\n\n👥 Registered users: <b>{total_users}</b>\n📜 Activity log entries: <b>{total_logs}</b>\n\n<b>Users by language:</b>\n{language_counts}",
+    "metrics": "<b>Metrics</b>\n\n👥 Registered users: <b>{total_users}</b>\n📜 Activity log entries: <b>{total_logs}</b>\n\n<b>Users by language:</b>\n{language_counts}\n\n<b>Registered users:</b>\n{users}",
     "metrics_language_line": "• {lang}: {count}",
     "logs": "<b>Activity Log</b>\nPage {page} of {total_pages}\n\n{entries}",
     "log_entry": "🕒 {timestamp}\n👤 {user}\n🔧 {action}\n📝 {details}",

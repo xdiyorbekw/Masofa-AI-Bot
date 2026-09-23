@@ -152,7 +152,7 @@
     "session_expired": "Administrator sessiyasi tugadi. /admin orqali qayta kiring.",
     "session_cancelled": "Administrator sessiyasi bekor qilindi.",
     "logged_out": "Administrator panelidan chiqdingiz.",
-    "metrics": "<b>Ko'rsatkichlar</b>\n\n👥 Ro'yxatdan o'tgan foydalanuvchilar: <b>{total_users}</b>\n📜 Jurnal yozuvlari: <b>{total_logs}</b>\n\n<b>Tillar bo'yicha foydalanuvchilar:</b>\n{language_counts}",
+    "metrics": "<b>Ko'rsatkichlar</b>\n\n👥 Ro'yxatdan o'tgan foydalanuvchilar: <b>{total_users}</b>\n📜 Jurnal yozuvlari: <b>{total_logs}</b>\n\n<b>Tillar bo'yicha foydalanuvchilar:</b>\n{language_counts}\n\n<b>Ro'yxatdan o'tgan foydalanuvchilar:</b>\n{users}",
     "metrics_language_line": "• {lang}: {count}",
     "logs": "<b>Faollik jurnali</b>\nSahifa {page} / {total_pages}\n\n{entries}",
     "log_entry": "🕒 {timestamp}\n👤 {user}\n🔧 {action}\n📝 {details}",

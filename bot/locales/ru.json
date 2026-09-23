@@ -152,7 +152,7 @@
     "session_expired": "Сессия администратора истекла. Выполните /admin ещё раз.",
     "session_cancelled": "Сессия администратора отменена.",
     "logged_out": "Вы вышли из панели администратора.",
-    "metrics": "<b>Метрики</b>\n\n👥 Зарегистрированных пользователей: <b>{total_users}</b>\n📜 Записей журнала: <b>{total_logs}</b>\n\n<b>Пользователи по языкам:</b>\n{language_counts}",
+    "metrics": "<b>Метрики</b>\n\n👥 Зарегистрированных пользователей: <b>{total_users}</b>\n📜 Записей журнала: <b>{total_logs}</b>\n\n<b>Пользователи по языкам:</b>\n{language_counts}\n\n<b>Зарегистрированные пользователи:</b>\n{users}",
     "metrics_language_line": "• {lang}: {count}",
     "logs": "<b>Журнал активности</b>\nСтраница {page} из {total_pages}\n\n{entries}",
     "log_entry": "🕒 {timestamp}\n👤 {user}\n🔧 {action}\n📝 {details}",

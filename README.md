@@ -1,6 +1,6 @@
 # Production Multilingual Telegram Bot
 
-A modular Telegram bot built with Python 3.11+, aiogram 3.x, SQLAlchemy 2.x async ORM, SQLite/PostgreSQL, Pydantic Settings v2, and aiohttp.
+
 
 ## Features
 

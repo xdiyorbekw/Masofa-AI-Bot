@@ -1,7 +1,9 @@
 import asyncio
 import logging
+import os
 from pathlib import Path
 
+from aiohttp import web
 from aiogram import Bot, Dispatcher, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
@@ -21,6 +23,39 @@ logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+
+async def start_render_health_server() -> tuple[web.AppRunner, web.TCPSite] | None:
+    """Expose a tiny HTTP endpoint so Render Web Service sees an open port.
+
+    Telegram polling itself does not listen on HTTP, but Render Web Services
+    require a bound port. The endpoint is intentionally independent of the
+    Telegram bot.
+    """
+    port_value = os.getenv("PORT")
+    if not port_value:
+        return None
+
+    try:
+        port = int(port_value)
+    except ValueError:
+        logger.warning("Invalid PORT=%r; Render health server disabled", port_value)
+        return None
+
+    app = web.Application()
+
+    async def health(_: web.Request) -> web.Response:
+        return web.Response(text="ok")
+
+    app.router.add_get("/", health)
+    app.router.add_get("/health", health)
+
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, host="0.0.0.0", port=port)
+    await site.start()
+    logger.info("Render health server listening on 0.0.0.0:%s", port)
+    return runner, site
 
 
 async def configure_bot_commands(bot: Bot, i18n: I18n, default_language: str) -> None:
@@ -121,10 +156,15 @@ async def main() -> None:
 
     await configure_bot_commands(bot, i18n, settings.default_language)
     await bot.delete_webhook(drop_pending_updates=True)
+
+    health_server = await start_render_health_server()
     try:
         await dispatcher.start_polling(bot, close_bot_session=False)
     finally:
         logger.info("Shutting down Telegram bot")
+        if health_server is not None:
+            runner, _ = health_server
+            await runner.cleanup()
         await weather_service.close()
         await bot.session.close()
         await database.close()

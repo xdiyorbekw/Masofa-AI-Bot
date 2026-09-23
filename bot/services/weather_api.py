@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta, timezone
@@ -10,7 +11,16 @@ import aiohttp
 logger = logging.getLogger(__name__)
 
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
+MET_NORWAY_URL = "https://api.met.no/weatherapi/locationforecast/2.0/compact"
 WTTR_URL_TEMPLATE = "https://wttr.in/{location}?format=j1"
+
+# MET Norway requires a descriptive, unique User-Agent. It has global coverage
+# and returns forecasts for up to nine days, so it is a better long-range
+# fallback than wttr.in for this bot.
+MET_USER_AGENT = "MasofaAI/1.0 (https://t.me/masofai_bot)"
+UZBEKISTAN_TZ_OFFSET_SECONDS = 5 * 60 * 60
+FORECAST_CACHE_TTL_SECONDS = 15 * 60
+CURRENT_CACHE_TTL_SECONDS = 5 * 60
 
 
 @dataclass(frozen=True, slots=True)
@@ -72,6 +82,9 @@ class WeatherService:
     def __init__(self, request_timeout: float) -> None:
         self.request_timeout = request_timeout
         self._session: aiohttp.ClientSession | None = None
+        self._forecast_cache: dict[str, tuple[float, Forecast]] = {}
+        self._current_cache: dict[tuple[float, float], tuple[float, CurrentWeather]] = {}
+        self._forecast_lock = asyncio.Lock()
 
     async def start(self) -> None:
         if self._session is None or self._session.closed:
@@ -82,11 +95,17 @@ class WeatherService:
         if self._session is not None and not self._session.closed:
             await self._session.close()
 
-    async def _json_request(self, url: str, *, params: dict[str, Any] | None = None) -> dict[str, Any]:
+    async def _json_request(
+        self,
+        url: str,
+        *,
+        params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
         if self._session is None or self._session.closed:
             raise WeatherServiceError("Weather service is not started")
         try:
-            async with self._session.get(url, params=params) as response:
+            async with self._session.get(url, params=params, headers=headers) as response:
                 body = await response.text()
                 if response.status >= 400:
                     logger.warning("Weather provider returned HTTP %s", response.status)
@@ -119,48 +138,117 @@ class WeatherService:
         }
         return await self._json_request(OPEN_METEO_URL, params=params)
 
+    async def _met_norway_request(self, latitude: float, longitude: float) -> dict[str, Any]:
+        # MET Norway asks clients to identify themselves and recommends no more
+        # than four decimal places to improve server-side caching.
+        params = {
+            "lat": f"{latitude:.4f}",
+            "lon": f"{longitude:.4f}",
+        }
+        return await self._json_request(
+            MET_NORWAY_URL,
+            params=params,
+            headers={"User-Agent": MET_USER_AGENT, "Accept": "application/json"},
+        )
+
     async def _wttr_request(self, latitude: float, longitude: float) -> dict[str, Any]:
         location = f"{latitude},{longitude}"
         return await self._json_request(WTTR_URL_TEMPLATE.format(location=location))
 
     async def get_7_day_forecast(self, region: Region) -> Forecast:
-        try:
-            payload = await self._open_meteo_request(region.latitude, region.longitude)
-            return self._parse_open_meteo_forecast(payload, region)
-        except WeatherServiceError:
-            logger.warning("Open-Meteo forecast failed for %s; trying wttr.in fallback", region.id)
+        cached = self._forecast_cache.get(region.id)
+        if cached and time.monotonic() - cached[0] < FORECAST_CACHE_TTL_SECONDS:
+            return cached[1]
 
-        try:
-            payload = await self._wttr_request(region.latitude, region.longitude)
-            return self._parse_wttr_forecast(payload, region)
-        except WeatherServiceError as exc:
-            logger.warning("All weather forecast providers failed for %s", region.id)
-            raise exc
+        async with self._forecast_lock:
+            # Another request may have filled the cache while we waited.
+            cached = self._forecast_cache.get(region.id)
+            if cached and time.monotonic() - cached[0] < FORECAST_CACHE_TTL_SECONDS:
+                return cached[1]
+
+            try:
+                payload = await self._open_meteo_request(region.latitude, region.longitude)
+                forecast = self._parse_open_meteo_forecast(payload, region)
+                self._forecast_cache[region.id] = (time.monotonic(), forecast)
+                return forecast
+            except WeatherServiceError as exc:
+                logger.warning(
+                    "Open-Meteo forecast failed for %s: %s; trying MET Norway",
+                    region.id,
+                    exc,
+                )
+
+            try:
+                payload = await self._met_norway_request(region.latitude, region.longitude)
+                forecast = self._parse_met_norway_forecast(payload, region)
+                self._forecast_cache[region.id] = (time.monotonic(), forecast)
+                return forecast
+            except WeatherServiceError as exc:
+                logger.warning(
+                    "MET Norway forecast failed for %s: %s; trying wttr.in",
+                    region.id,
+                    exc,
+                )
+
+            try:
+                payload = await self._wttr_request(region.latitude, region.longitude)
+                forecast = self._parse_wttr_forecast(payload, region)
+                self._forecast_cache[region.id] = (time.monotonic(), forecast)
+                return forecast
+            except WeatherServiceError as exc:
+                # If all providers are temporarily unavailable, an older
+                # successful response is still more useful than an error.
+                stale = self._forecast_cache.get(region.id)
+                if stale:
+                    logger.warning(
+                        "All weather providers failed for %s; serving stale cached forecast",
+                        region.id,
+                    )
+                    return stale[1]
+                logger.warning("All weather forecast providers failed for %s: %s", region.id, exc)
+                raise exc
 
     async def get_current_weather(self, latitude: float, longitude: float) -> CurrentWeather:
+        cache_key = (round(latitude, 4), round(longitude, 4))
+        cached = self._current_cache.get(cache_key)
+        if cached and time.monotonic() - cached[0] < CURRENT_CACHE_TTL_SECONDS:
+            return cached[1]
+
         try:
             payload = await self._open_meteo_request(latitude, longitude)
             current = payload.get("current")
             if not isinstance(current, dict):
                 raise WeatherServiceError("Open-Meteo current data is missing")
-            return CurrentWeather(
+            result = CurrentWeather(
                 temperature_c=self._as_float(current.get("temperature_2m")),
                 weather_id=self._as_int(current.get("weather_code")),
                 source="open-meteo",
             )
-        except WeatherServiceError:
-            logger.warning("Open-Meteo current weather failed; trying wttr.in fallback")
+            self._current_cache[cache_key] = (time.monotonic(), result)
+            return result
+        except WeatherServiceError as exc:
+            logger.warning("Open-Meteo current weather failed: %s; trying MET Norway", exc)
+
+        try:
+            payload = await self._met_norway_request(latitude, longitude)
+            result = self._parse_met_norway_current(payload)
+            self._current_cache[cache_key] = (time.monotonic(), result)
+            return result
+        except WeatherServiceError as exc:
+            logger.warning("MET Norway current weather failed: %s; trying wttr.in", exc)
 
         payload = await self._wttr_request(latitude, longitude)
         current = payload.get("current_condition")
         if not isinstance(current, list) or not current or not isinstance(current[0], dict):
             raise WeatherServiceError("wttr.in current data is missing")
         item = current[0]
-        return CurrentWeather(
+        result = CurrentWeather(
             temperature_c=self._as_float(item.get("temp_C")),
             weather_id=self._as_int(item.get("weatherCode")),
             source="wttr.in",
         )
+        self._current_cache[cache_key] = (time.monotonic(), result)
+        return result
 
     def _parse_open_meteo_forecast(self, payload: dict[str, Any], region: Region) -> Forecast:
         daily = payload.get("daily")
@@ -201,6 +289,177 @@ class WeatherService:
         if len(days) < 7:
             raise WeatherServiceError("Open-Meteo returned malformed daily dates")
         return Forecast(region=region, timezone_offset_seconds=offset, days=days, source="open-meteo")
+
+    def _parse_met_norway_current(self, payload: dict[str, Any]) -> CurrentWeather:
+        timeseries = self._met_timeseries(payload)
+        if not timeseries:
+            raise WeatherServiceError("MET Norway returned no timeseries")
+
+        first = timeseries[0]
+        details = (
+            first.get("data", {}).get("instant", {}).get("details", {})
+            if isinstance(first.get("data"), dict)
+            else {}
+        )
+        if not isinstance(details, dict):
+            raise WeatherServiceError("MET Norway current data is missing")
+
+        symbol = self._met_symbol(first)
+        return CurrentWeather(
+            temperature_c=self._as_float(details.get("air_temperature")),
+            weather_id=self._met_symbol_to_wmo(symbol),
+            source="met.no",
+        )
+
+    def _parse_met_norway_forecast(self, payload: dict[str, Any], region: Region) -> Forecast:
+        timeseries = self._met_timeseries(payload)
+        if not timeseries:
+            raise WeatherServiceError("MET Norway returned no timeseries")
+
+        local_zone = timezone(timedelta(seconds=UZBEKISTAN_TZ_OFFSET_SECONDS))
+        today = datetime.now(local_zone).date()
+        grouped: dict[Any, list[dict[str, Any]]] = {}
+
+        for item in timeseries:
+            if not isinstance(item, dict):
+                continue
+            raw_time = item.get("time")
+            try:
+                instant = datetime.fromisoformat(str(raw_time).replace("Z", "+00:00"))
+            except (TypeError, ValueError):
+                continue
+            local_dt = instant.astimezone(local_zone)
+            day = local_dt.date()
+            if day < today:
+                continue
+            grouped.setdefault(day, []).append(item)
+
+        days: list[DailyForecast] = []
+        for day in sorted(grouped)[:7]:
+            items = grouped[day]
+            temperatures: list[float] = []
+            humidities: list[int] = []
+            winds: list[float] = []
+            weather_ids: list[int] = []
+
+            for item in items:
+                data = item.get("data") if isinstance(item.get("data"), dict) else {}
+                instant = data.get("instant") if isinstance(data.get("instant"), dict) else {}
+                details = instant.get("details") if isinstance(instant.get("details"), dict) else {}
+
+                temp = self._as_float(details.get("air_temperature"))
+                humidity = self._as_int(details.get("relative_humidity"))
+                wind = self._as_float(details.get("wind_speed"))
+                if temp is not None:
+                    temperatures.append(temp)
+                if humidity is not None:
+                    humidities.append(humidity)
+                if wind is not None:
+                    winds.append(wind)
+
+                code = self._met_symbol_to_wmo(self._met_symbol(item))
+                if code is not None:
+                    weather_ids.append(code)
+
+            if not temperatures:
+                continue
+
+            # Prefer the most severe symbol seen during the day.
+            weather_id = self._select_met_code(weather_ids)
+            date_local = datetime.combine(day, datetime.min.time(), tzinfo=local_zone)
+            days.append(
+                DailyForecast(
+                    date_local=date_local,
+                    weather_id=weather_id,
+                    temperature_min=min(temperatures),
+                    temperature_max=max(temperatures),
+                    humidity=round(sum(humidities) / len(humidities)) if humidities else None,
+                    wind_speed=max(winds) if winds else None,
+                )
+            )
+
+        if len(days) < 7:
+            raise WeatherServiceError(f"MET Norway returned only {len(days)} forecast days")
+
+        return Forecast(
+            region=region,
+            timezone_offset_seconds=UZBEKISTAN_TZ_OFFSET_SECONDS,
+            days=days,
+            source="met.no",
+        )
+
+    @staticmethod
+    def _met_timeseries(payload: dict[str, Any]) -> list[dict[str, Any]]:
+        properties = payload.get("properties")
+        if not isinstance(properties, dict):
+            return []
+        timeseries = properties.get("timeseries")
+        if not isinstance(timeseries, list):
+            return []
+        return [item for item in timeseries if isinstance(item, dict)]
+
+    @staticmethod
+    def _met_symbol(item: dict[str, Any]) -> str | None:
+        data = item.get("data")
+        if not isinstance(data, dict):
+            return None
+        for period in ("next_1_hours", "next_6_hours", "next_12_hours"):
+            block = data.get(period)
+            if not isinstance(block, dict):
+                continue
+            summary = block.get("summary")
+            if isinstance(summary, dict):
+                symbol = summary.get("symbol_code")
+                if isinstance(symbol, str):
+                    return symbol
+        return None
+
+    @staticmethod
+    def _met_symbol_to_wmo(symbol: str | None) -> int | None:
+        if not symbol:
+            return None
+        base = symbol.lower().split("_")[0]
+        mapping = {
+            "clearsky": 0,
+            "fair": 1,
+            "partlycloudy": 2,
+            "cloudy": 3,
+            "fog": 45,
+            "lightrain": 61,
+            "rain": 63,
+            "heavyrain": 65,
+            "lightrainshowers": 61,
+            "rainshowers": 63,
+            "heavyrainshowers": 65,
+            "lightsleet": 66,
+            "sleet": 67,
+            "heavysleet": 67,
+            "lightsnow": 71,
+            "snow": 73,
+            "heavysnow": 75,
+            "lightsnowshowers": 71,
+            "snowshowers": 73,
+            "heavysnowshowers": 75,
+            "rainandsnow": 67,
+            "lightrainandthunder": 95,
+            "rainandthunder": 95,
+            "heavyrainandthunder": 95,
+            "lightsnowandthunder": 95,
+            "snowandthunder": 95,
+            "heavysnowandthunder": 95,
+        }
+        return mapping.get(base)
+
+    @staticmethod
+    def _select_met_code(codes: list[int]) -> int | None:
+        if not codes:
+            return None
+        priority = [95, 75, 73, 71, 67, 65, 63, 61, 45, 3, 2, 1, 0]
+        available = set(codes)
+        for code in priority:
+            if code in available:
+                return code
+        return codes[0]
 
     def _parse_wttr_forecast(self, payload: dict[str, Any], region: Region) -> Forecast:
         forecast = payload.get("weather")

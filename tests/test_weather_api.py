@@ -83,3 +83,51 @@ def test_condition_key_supports_wttr_codes() -> None:
     assert condition_key(119) == "cloudy"
     assert condition_key(302) == "rain"
     assert condition_key(386) == "thunderstorm"
+
+
+def _met_norway_payload() -> dict:
+    from datetime import datetime, timedelta, timezone
+
+    now = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+    timeseries = []
+    for day in range(8):
+        for hour in (0, 6, 12, 18):
+            instant = now + timedelta(days=day, hours=hour)
+            timeseries.append(
+                {
+                    "time": instant.isoformat().replace("+00:00", "Z"),
+                    "data": {
+                        "instant": {
+                            "details": {
+                                "air_temperature": 20 + day,
+                                "relative_humidity": 50 + day,
+                                "wind_speed": 2 + day,
+                            }
+                        },
+                        "next_1_hours": {
+                            "summary": {"symbol_code": "clearsky_day" if day % 2 == 0 else "rain_day"}
+                        },
+                    },
+                }
+            )
+    return {"properties": {"timeseries": timeseries}}
+
+
+def test_met_norway_parser_returns_seven_days() -> None:
+    service = WeatherService(15.0)
+    region = Region("tashkent", 41.2995, 69.2401, "region.tashkent")
+    forecast = service._parse_met_norway_forecast(_met_norway_payload(), region)
+
+    assert len(forecast.days) == 7
+    assert forecast.source == "met.no"
+    assert forecast.days[0].temperature_min == 20.0
+    assert forecast.days[0].temperature_max == 20.0
+    assert forecast.days[1].weather_id == 63
+    assert forecast.days[0].date_local.utcoffset().total_seconds() == 18000
+
+
+def test_met_symbol_mapping() -> None:
+    assert WeatherService._met_symbol_to_wmo("clearsky_day") == 0
+    assert WeatherService._met_symbol_to_wmo("partlycloudy_day") == 2
+    assert WeatherService._met_symbol_to_wmo("rain_day") == 63
+    assert WeatherService._met_symbol_to_wmo("heavysnowandthunder_night") == 95

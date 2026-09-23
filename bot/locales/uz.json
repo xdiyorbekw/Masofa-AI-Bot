@@ -1,0 +1,184 @@
+{
+  "meta": {
+    "date_format": "%d.%m.%Y"
+  },
+  "language_options": {
+    "ru": "Русский",
+    "uz": "O'zbekcha",
+    "en": "English"
+  },
+  "commands": {
+    "start": "Botni ishga tushirish",
+    "menu": "Asosiy menyuni ochish",
+    "admin": "Administrator paneli",
+    "cancel": "Joriy amalni bekor qilish"
+  },
+  "button": {
+    "weather": "⛅ 7 kunlik ob-havo",
+    "distance": "📏 Masofa va piyoda vaqt",
+    "about": "ℹ️ Loyiha haqida",
+    "settings": "⚙️ Sozlamalar / til",
+    "back": "⬅️ Orqaga",
+    "main_menu": "🏠 Asosiy menyu",
+    "cancel": "✖️ Bekor qilish",
+    "change_language": "🌐 Tilni almashtirish",
+    "confirm": "✅ Tasdiqlash",
+    "previous": "◀️ Oldingi",
+    "next": "Keyingi ▶️",
+    "github": "GitHub",
+    "youtube": "YouTube",
+    "creator_telegram": "Muallif Telegrami"
+  },
+  "app": {
+    "greeting": "Xush kelibsiz, <b>{full_name}</b>.\n\nKerakli bo'limni tanlang:",
+    "main_menu": "Asosiy menyu"
+  },
+  "registration": {
+    "choose_language": "Ilova tilini tanlang:",
+    "ask_full_name": "Ism va familiyangizni kiriting.\n\nMasalan: Ali Valiyev",
+    "invalid_name": "Iltimos, to'g'ri ism va familiya kiriting: kamida ikki so'z, raqamlarsiz va me'yoriy uzunlikda.",
+    "success": "Ro'yxatdan o'tish yakunlandi, <b>{full_name}</b>.\n\nEndi botdan foydalanishingiz mumkin."
+  },
+  "language": {
+    "select": "Yangi tilni tanlang:",
+    "changed": "✅ Til o'zgartirildi."
+  },
+  "common": {
+    "cancelled": "Amal bekor qilindi."
+  },
+  "errors": {
+    "generic": "Ichki xatolik yuz berdi. Keyinroq qayta urinib ko'ring.",
+    "registration_required": "Avval /start orqali ro'yxatdan o'tishni yakunlang.",
+    "invalid_region": "Noma'lum hudud. Hududlar ro'yxatini qayta oching."
+  },
+  "weather": {
+    "select_region": "⛅ 7 kunlik prognoz uchun hududni tanlang:",
+    "loading": "<b>{region}</b> uchun prognoz yuklanmoqda…",
+    "forecast_title": "⛅ 7 kunlik prognoz — <b>{region}</b>",
+    "value": "{value}",
+    "day_block": "📅 <b>{weekday}, {date}</b>\n{icon} <b>{condition}</b>\n🌡 Harorat: {min_temp} … {max_temp}\n💧 Namlik: {humidity}\n💨 Shamol: {wind}",
+    "unavailable": "Hozir prognozni olishning imkoni bo‘lmadi. Ob-havo xizmatini tekshirib, qayta urinib ko‘ring.",
+    "condition": {
+      "clear": "Ochiq",
+      "partly_cloudy": "Qisman bulutli",
+      "cloudy": "Bulutli",
+      "drizzle": "Mayda yomg'ir",
+      "rain": "Yomg'ir",
+      "snow": "Qor",
+      "thunderstorm": "Momaqaldiroq",
+      "atmosphere": "Tuman / xiralik",
+      "unknown": "Noma'lum holat"
+    },
+    "icon": {
+      "clear": "☀️",
+      "partly_cloudy": "⛅",
+      "cloudy": "☁️",
+      "drizzle": "🌦️",
+      "rain": "🌧️",
+      "snow": "❄️",
+      "thunderstorm": "⛈️",
+      "atmosphere": "🌫️",
+      "unknown": "🌡️"
+    },
+    "missing": "—",
+    "temperature_value": "{value} °C",
+    "humidity_value": "{value}%",
+    "wind_value": "{value} m/s"
+  },
+  "region": {
+    "tashkent": "Toshkent",
+    "samarkand": "Samarqand",
+    "bukhara": "Buxoro",
+    "khorezm": "Xorazm",
+    "fergana": "Farg'ona",
+    "namangan": "Namangan",
+    "andijan": "Andijon",
+    "kashkadarya": "Qashqadaryo",
+    "surkhandarya": "Surxondaryo",
+    "jizzakh": "Jizzax",
+    "syrdarya": "Sirdaryo",
+    "navoiy": "Navoiy"
+  },
+  "day_names": {
+    "0": "Dushanba",
+    "1": "Seshanba",
+    "2": "Chorshanba",
+    "3": "Payshanba",
+    "4": "Juma",
+    "5": "Shanba",
+    "6": "Yakshanba"
+  },
+  "about": {
+    "text": "<b>Loyiha haqida</b>\n\nOb-havo prognozi, masofa va taxminiy piyoda vaqtini hisoblash funksiyalariga ega ko'p tilli Telegram-bot.\n\nLoyiha va muallif havolalari quyida joylashgan."
+  },
+  "settings": {
+    "text": "<b>Sozlamalar</b>\n\nJoriy tilni /start ni qayta yubormasdan o'zgartirish mumkin."
+  },
+  "distance": {
+    "ask_start": "📍 <b>Boshlang'ich nuqta</b>\n\nTelegram Location yuboring yoki koordinatalarni quyidagi formatda kiriting:\n<code>41.2995, 69.2401</code>",
+    "ask_destination": "📍 <b>Manzil nuqtasi</b>\n\nTelegram Location yuboring yoki koordinatalarni quyidagi formatda kiriting:\n<code>41.3111, 69.2797</code>",
+    "invalid_coordinates": "Koordinatalar noto'g'ri. <code>kenglik, uzunlik</code> formatidan foydalaning: kenglik −90…90, uzunlik −180…180.",
+    "invalid_input": "<code>kenglik, uzunlik</code> koordinatalari yoki Telegram Location yuboring.",
+    "state_lost": "Hisoblash holati yo'qoldi. Asosiy menyudan hisoblashni qayta boshlang.",
+    "current_weather": "🌡 {temperature}\n{icon} {condition}",
+    "weather_unavailable": "🌦 Ob-havo: mavjud emas",
+    "weather_unavailable_note": "Joriy ob-havo olinmagani uchun ob-havo bo'yicha tuzatish qo'llanmadi.",
+    "adjustment_unavailable": "⚠️ Ob-havo tuzatishi: qo'llanmadi",
+    "adjustment": {
+      "normal": "✅ Tuzatish: 0% — odatiy tezlik",
+      "heavy_rain_snow": "⚠️ Kuchli yomg'ir yoki qor sabab tezlik {percent}% ga kamaytirildi.",
+      "extreme_heat": "⚠️ 35 °C dan yuqori harorat sabab tezlik {percent}% ga kamaytirildi.",
+      "extreme_cold": "⚠️ 0 °C dan past harorat sabab tezlik {percent}% ga kamaytirildi."
+    },
+    "result": "📏 <b>Masofa:</b> {distance}\n🚶 <b>Taxminiy vaqt:</b> taxminan {minutes} daqiqa\n🏃 <b>Bazaviy tezlik:</b> {base_speed}\n\n{weather}\n\n{adjustment}\n\n💡 <b>Tavsiya:</b> {advice}\n\n{unavailable_note}\n\nMasofa to'g'ri chiziq bo'yicha hisoblandi. Vaqt real marshrut emas, taxminiy piyoda bahodir.",
+    "advice": {
+      "normal": "Haqiqiy yo'llar, chorrahalar va marshrut sharoitlarini hisobga oling.",
+      "heavy_rain_snow": "Ehtiyotkorroq yuring va qoplama hamda ko'rinish yomonlashishini hisobga oling.",
+      "extreme_heat": "Suv oling va imkon qadar uzoq vaqt to'g'ridan-to'g'ri quyosh ostida qolmang.",
+      "extreme_cold": "Sovuq va sirpanchiq qoplama ehtimolini hisobga oling."
+    },
+    "distance_value": "{value} km",
+    "base_speed": "5.0 km/soat"
+  },
+  "admin": {
+    "dashboard": "<b>Administrator paneli</b>\n\nAmalni tanlang:",
+    "ask_username": "Administrator loginini kiriting:",
+    "ask_password": "Administrator parolini kiriting:",
+    "invalid_credentials": "Login yoki parol noto'g'ri.",
+    "login_success": "✅ Autentifikatsiya muvaffaqiyatli.",
+    "unauthorized": "Kirish taqiqlangan.",
+    "private_chat_only": "Administrator paneli faqat bot bilan shaxsiy chatda ishlaydi.",
+    "locked": "Juda ko'p muvaffaqiyatsiz urinish. {seconds} soniyadan keyin qayta urinib ko'ring.",
+    "session_expired": "Administrator sessiyasi tugadi. /admin orqali qayta kiring.",
+    "session_cancelled": "Administrator sessiyasi bekor qilindi.",
+    "logged_out": "Administrator panelidan chiqdingiz.",
+    "metrics": "<b>Ko'rsatkichlar</b>\n\n👥 Ro'yxatdan o'tgan foydalanuvchilar: <b>{total_users}</b>\n📜 Jurnal yozuvlari: <b>{total_logs}</b>\n\n<b>Tillar bo'yicha foydalanuvchilar:</b>\n{language_counts}",
+    "metrics_language_line": "• {lang}: {count}",
+    "logs": "<b>Faollik jurnali</b>\nSahifa {page} / {total_pages}\n\n{entries}",
+    "log_entry": "🕒 {timestamp}\n👤 {user}\n🔧 {action}\n📝 {details}",
+    "no_data": "Ma'lumot yo'q.",
+    "broadcast_ask": "📢 Tarqatish uchun xabar yuboring. Matn, foto va video qo'llab-quvvatlanadi.\n\nTelegram limitlari avtomatik hisobga olinadi.",
+    "broadcast_confirmation": "<b>Tarqatishni tasdiqlash</b>\n\nTuri: {kind}\nQabul qiluvchilar: <b>{recipients}</b>\n\n<b>Ko'rinish:</b>\n{preview}\n\nBarcha ro'yxatdan o'tgan foydalanuvchilarga yuborilsinmi?",
+    "broadcast_started": "📢 Tarqatish boshlandi. Bot qabul qiluvchilarni qayta ishlamoqda va Telegram cheklovlarini hisobga olmoqda.",
+    "broadcast_finished": "<b>Tarqatish yakunlandi</b>\n\nQabul qiluvchilar: {recipients}\n✅ Muvaffaqiyatli: {sent}\n❌ Xatolar: {failed}",
+    "broadcast_missing": "Tarqatish ma'lumotlari eskirgan. Tarqatishni qayta yarating.",
+    "broadcast_unsupported": "Faqat matn, foto va video qo'llab-quvvatlanadi.",
+    "broadcast_text_too_long": "Matn juda uzun. Maksimal uzunlik — 4096 belgi.",
+    "broadcast_caption_too_long": "Foto yoki video izohi juda uzun. Maksimal uzunlik — 1024 belgi.",
+    "broadcast_no_caption": "Izohsiz",
+    "broadcast_kind": {
+      "text": "matn",
+      "photo": "foto",
+      "video": "video"
+    },
+    "button": {
+      "metrics": "📊 Ko'rsatkichlar",
+      "broadcast": "📢 Tarqatish",
+      "logs": "📜 Jurnal",
+      "logout": "🚪 Chiqish"
+    },
+    "no_user": "—",
+    "no_details": "—",
+    "broadcast_failed": "Yuborish jarayonini yakunlab bo‘lmadi. Boshqa xabarlar yuborilmaydi."
+  }
+}

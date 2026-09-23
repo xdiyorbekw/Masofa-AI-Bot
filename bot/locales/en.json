@@ -1,0 +1,184 @@
+{
+  "meta": {
+    "date_format": "%m/%d/%Y"
+  },
+  "language_options": {
+    "ru": "Русский",
+    "uz": "O'zbekcha",
+    "en": "English"
+  },
+  "commands": {
+    "start": "Start the bot",
+    "menu": "Open the main menu",
+    "admin": "Open the admin panel",
+    "cancel": "Cancel the current action"
+  },
+  "button": {
+    "weather": "⛅ 7-Day Weather",
+    "distance": "📏 Distance & Walking Time",
+    "about": "ℹ️ About Us",
+    "settings": "⚙️ Settings / Language",
+    "back": "⬅️ Back",
+    "main_menu": "🏠 Main Menu",
+    "cancel": "✖️ Cancel",
+    "change_language": "🌐 Change Language",
+    "confirm": "✅ Confirm",
+    "previous": "◀️ Previous",
+    "next": "Next ▶️",
+    "github": "GitHub",
+    "youtube": "YouTube",
+    "creator_telegram": "Creator Telegram"
+  },
+  "app": {
+    "greeting": "Welcome, <b>{full_name}</b>.\n\nChoose a section:",
+    "main_menu": "Main Menu"
+  },
+  "registration": {
+    "choose_language": "Choose the application language:",
+    "ask_full_name": "Enter your first and last name.\n\nExample: John Smith",
+    "invalid_name": "Please enter a valid first and last name: at least two words, no digits, and a reasonable length.",
+    "success": "Registration completed, <b>{full_name}</b>.\n\nYou can now use the bot."
+  },
+  "language": {
+    "select": "Choose a new language:",
+    "changed": "✅ Language changed."
+  },
+  "common": {
+    "cancelled": "Action cancelled."
+  },
+  "errors": {
+    "generic": "An internal error occurred. Please try again later.",
+    "registration_required": "Please complete registration through /start first.",
+    "invalid_region": "Unknown region. Open the region list again."
+  },
+  "weather": {
+    "select_region": "⛅ Choose a region for a 7-day forecast:",
+    "loading": "Loading the forecast for <b>{region}</b>…",
+    "forecast_title": "⛅ 7-Day Forecast — <b>{region}</b>",
+    "value": "{value}",
+    "day_block": "📅 <b>{weekday}, {date}</b>\n{icon} <b>{condition}</b>\n🌡 Temperature: {min_temp} … {max_temp}\n💧 Humidity: {humidity}\n💨 Wind: {wind}",
+    "unavailable": "The forecast could not be loaded right now. Check the weather service availability and try again.",
+    "condition": {
+      "clear": "Clear",
+      "partly_cloudy": "Partly cloudy",
+      "cloudy": "Cloudy",
+      "drizzle": "Drizzle",
+      "rain": "Rain",
+      "snow": "Snow",
+      "thunderstorm": "Thunderstorm",
+      "atmosphere": "Fog / haze",
+      "unknown": "Unknown condition"
+    },
+    "icon": {
+      "clear": "☀️",
+      "partly_cloudy": "⛅",
+      "cloudy": "☁️",
+      "drizzle": "🌦️",
+      "rain": "🌧️",
+      "snow": "❄️",
+      "thunderstorm": "⛈️",
+      "atmosphere": "🌫️",
+      "unknown": "🌡️"
+    },
+    "missing": "—",
+    "temperature_value": "{value} °C",
+    "humidity_value": "{value}%",
+    "wind_value": "{value} m/s"
+  },
+  "region": {
+    "tashkent": "Tashkent",
+    "samarkand": "Samarkand",
+    "bukhara": "Bukhara",
+    "khorezm": "Khorezm",
+    "fergana": "Fergana",
+    "namangan": "Namangan",
+    "andijan": "Andijan",
+    "kashkadarya": "Kashkadarya",
+    "surkhandarya": "Surkhandarya",
+    "jizzakh": "Jizzakh",
+    "syrdarya": "Syrdarya",
+    "navoiy": "Navoiy"
+  },
+  "day_names": {
+    "0": "Monday",
+    "1": "Tuesday",
+    "2": "Wednesday",
+    "3": "Thursday",
+    "4": "Friday",
+    "5": "Saturday",
+    "6": "Sunday"
+  },
+  "about": {
+    "text": "<b>About the project</b>\n\nA multilingual Telegram bot for weather forecasts, distance calculations, and approximate walking-time estimates.\n\nProject and creator links are below."
+  },
+  "settings": {
+    "text": "<b>Settings</b>\n\nYou can change the current language without sending /start again."
+  },
+  "distance": {
+    "ask_start": "📍 <b>Starting Point</b>\n\nSend a Telegram Location or enter coordinates in this format:\n<code>41.2995, 69.2401</code>",
+    "ask_destination": "📍 <b>Destination</b>\n\nSend a Telegram Location or enter coordinates in this format:\n<code>41.3111, 69.2797</code>",
+    "invalid_coordinates": "Invalid coordinates. Use <code>latitude, longitude</code> with latitude −90…90 and longitude −180…180.",
+    "invalid_input": "Please send <code>latitude, longitude</code> coordinates or a Telegram Location.",
+    "state_lost": "The calculation state was lost. Start the calculation again from the main menu.",
+    "current_weather": "🌡 {temperature}\n{icon} {condition}",
+    "weather_unavailable": "🌦 Weather: unavailable",
+    "weather_unavailable_note": "No weather adjustment was applied because current weather could not be retrieved.",
+    "adjustment_unavailable": "⚠️ Weather adjustment: not applied",
+    "adjustment": {
+      "normal": "✅ Adjustment: 0% — normal speed",
+      "heavy_rain_snow": "⚠️ Speed reduced by {percent}% because of heavy rain or snow.",
+      "extreme_heat": "⚠️ Speed reduced by {percent}% because the temperature is above 35 °C.",
+      "extreme_cold": "⚠️ Speed reduced by {percent}% because the temperature is below 0 °C."
+    },
+    "result": "📏 <b>Distance:</b> {distance}\n🚶 <b>Estimated time:</b> about {minutes} min\n🏃 <b>Base speed:</b> {base_speed}\n\n{weather}\n\n{adjustment}\n\n💡 <b>Advice:</b> {advice}\n\n{unavailable_note}\n\nDistance is calculated as a straight-line distance. Time is an approximate walking estimate, not a routed path.",
+    "advice": {
+      "normal": "Account for actual roads, crossings, and route conditions.",
+      "heavy_rain_snow": "Move carefully and account for worse surface and visibility conditions.",
+      "extreme_heat": "Carry water and avoid prolonged direct sun exposure when practical.",
+      "extreme_cold": "Account for cold conditions and possible slippery surfaces."
+    },
+    "distance_value": "{value} km",
+    "base_speed": "5.0 km/h"
+  },
+  "admin": {
+    "dashboard": "<b>Admin Panel</b>\n\nChoose an action:",
+    "ask_username": "Enter the administrator username:",
+    "ask_password": "Enter the administrator password:",
+    "invalid_credentials": "Invalid credentials.",
+    "login_success": "✅ Authentication successful.",
+    "unauthorized": "Access denied.",
+    "private_chat_only": "The admin panel is available only in a private chat with the bot.",
+    "locked": "Too many failed attempts. Try again in {seconds} seconds.",
+    "session_expired": "The admin session expired. Run /admin again.",
+    "session_cancelled": "Admin session cancelled.",
+    "logged_out": "You have logged out of the admin panel.",
+    "metrics": "<b>Metrics</b>\n\n👥 Registered users: <b>{total_users}</b>\n📜 Activity log entries: <b>{total_logs}</b>\n\n<b>Users by language:</b>\n{language_counts}",
+    "metrics_language_line": "• {lang}: {count}",
+    "logs": "<b>Activity Log</b>\nPage {page} of {total_pages}\n\n{entries}",
+    "log_entry": "🕒 {timestamp}\n👤 {user}\n🔧 {action}\n📝 {details}",
+    "no_data": "No data.",
+    "broadcast_ask": "📢 Send the message to broadcast. Text, photo, and video are supported.\n\nTelegram limits will be handled automatically.",
+    "broadcast_confirmation": "<b>Broadcast Confirmation</b>\n\nType: {kind}\nRecipients: <b>{recipients}</b>\n\n<b>Preview:</b>\n{preview}\n\nSend it to all registered users?",
+    "broadcast_started": "📢 Broadcast started. The bot is processing recipients and respecting Telegram limits.",
+    "broadcast_finished": "<b>Broadcast finished</b>\n\nRecipients: {recipients}\n✅ Sent: {sent}\n❌ Failed: {failed}",
+    "broadcast_missing": "The broadcast data is stale. Create the broadcast again.",
+    "broadcast_unsupported": "Only text, photo, and video are supported.",
+    "broadcast_text_too_long": "The text is too long. Maximum is 4096 characters.",
+    "broadcast_caption_too_long": "The photo or video caption is too long. Maximum is 1024 characters.",
+    "broadcast_no_caption": "No caption",
+    "broadcast_kind": {
+      "text": "text",
+      "photo": "photo",
+      "video": "video"
+    },
+    "button": {
+      "metrics": "📊 Metrics",
+      "broadcast": "📢 Broadcast",
+      "logs": "📜 Activity Log",
+      "logout": "🚪 Log Out"
+    },
+    "no_user": "—",
+    "no_details": "—",
+    "broadcast_failed": "The broadcast could not be completed. No further messages are being sent."
+  }
+}
